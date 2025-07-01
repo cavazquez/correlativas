@@ -37,4 +37,4 @@ Aplicación web para gestionar y visualizar las correlatividades entre materias 
 
 ## Licencia
 
-Este proyecto está bajo la Licencia MIT.
+Este proyecto está bajo la [Licencia Apache 2.0](LICENSE).
