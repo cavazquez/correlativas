@@ -285,99 +285,66 @@ function updateEnabledSubjects() {
         return !status.approved && isSubjectEnabled(subject);
     });
     
-    // Separar en materias con parciales y sin aprobar
-    const partialSubjects = enabledSubjects.filter(subject => subjectStatus[subject.id].partial);
-    const availableSubjects = enabledSubjects.filter(subject => !subjectStatus[subject.id].partial);
+    // Crear el contenedor de materias habilitadas
+    const enabledContainer = document.createElement('div');
+    enabledContainer.className = 'bg-white rounded-xl shadow-sm border border-gray-200 p-4';
     
-    // Mostrar materias disponibles (sin aprobar ni con parciales)
-    if (availableSubjects.length > 0) {
-        const availableHeader = document.createElement('h3');
-        availableHeader.className = 'text-lg font-semibold mt-4 mb-2 text-green-700';
-        availableHeader.textContent = 'Materias disponibles para cursar';
-        container.appendChild(availableHeader);
-        
-        const grid = document.createElement('div');
-        grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4 mb-6';
-        
-        availableSubjects.forEach(subject => {
-            const card = document.createElement('div');
-            card.className = 'bg-green-50 border border-green-200 rounded-lg p-4 hover:shadow-md transition-shadow';
-            
-            // Mostrar horas
-            let hoursInfo = [];
-            if (subject.theoryHours > 0) hoursInfo.push(`T: ${subject.theoryHours}h`);
-            if (subject.practiceHours > 0) hoursInfo.push(`P: ${subject.practiceHours}h`);
-            if (subject.labHours > 0) hoursInfo.push(`L: ${subject.labHours}h`);
-            
-            card.innerHTML = `
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h3 class="font-medium text-green-800">${subject.name}</h3>
-                        <div class="text-sm text-green-600">${subject.code} ${subject.isCBC ? '· CBC' : ''}</div>
-                        ${hoursInfo.length > 0 ? 
-                            `<div class="text-xs text-green-500 mt-1">${hoursInfo.join(' · ')}</div>` : ''
-                        }
-                    </div>
-                    <span class="text-xs bg-green-100 text-green-800 px-2 py-1 rounded-full">Disponible</span>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
-        
-        container.appendChild(grid);
-    }
+    // Título de la sección
+    const title = document.createElement('h2');
+    title.className = 'text-lg font-semibold text-gray-800 mb-3 flex items-center';
+    title.innerHTML = `
+        <svg class="w-5 h-5 mr-2 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        Materias Habilitadas
+        <span class="ml-2 px-2 py-0.5 text-xs font-medium bg-green-100 text-green-800 rounded-full">
+            ${enabledSubjects.length}
+        </span>
+    `;
+    enabledContainer.appendChild(title);
     
-    // Mostrar materias con parciales aprobados
-    if (partialSubjects.length > 0) {
-        const partialHeader = document.createElement('h3');
-        partialHeader.className = 'text-lg font-semibold mt-6 mb-2 text-amber-700';
-        partialHeader.textContent = 'Materias con parciales aprobados';
-        container.appendChild(partialHeader);
-        
-        const grid = document.createElement('div');
-        grid.className = 'grid grid-cols-1 md:grid-cols-2 gap-4';
-        
-        partialSubjects.forEach(subject => {
-            const card = document.createElement('div');
-            card.className = 'bg-amber-50 border border-amber-200 rounded-lg p-4 hover:shadow-md transition-shadow';
-            
-            // Mostrar horas
-            let hoursInfo = [];
-            if (subject.theoryHours > 0) hoursInfo.push(`T: ${subject.theoryHours}h`);
-            if (subject.practiceHours > 0) hoursInfo.push(`P: ${subject.practiceHours}h`);
-            if (subject.labHours > 0) hoursInfo.push(`L: ${subject.labHours}h`);
-            
-            card.innerHTML = `
-                <div class="flex justify-between items-start">
-                    <div>
-                        <h3 class="font-medium text-amber-800">${subject.name}</h3>
-                        <div class="text-sm text-amber-600">${subject.code} ${subject.isCBC ? '· CBC' : ''}</div>
-                        ${hoursInfo.length > 0 ? 
-                            `<div class="text-xs text-amber-500 mt-1">${hoursInfo.join(' · ')}</div>` : ''
-                        }
-                    </div>
-                    <span class="text-xs bg-amber-100 text-amber-800 px-2 py-1 rounded-full">Parciales</span>
-                </div>
-            `;
-            grid.appendChild(card);
-        });
-        
-        container.appendChild(grid);
-    }
-    
-    // Mensaje si no hay materias habilitadas
+    // Mostrar mensaje si no hay materias habilitadas
     if (enabledSubjects.length === 0) {
         const message = document.createElement('div');
-        message.className = 'text-center py-8 text-gray-500';
+        message.className = 'text-center py-4 text-sm text-gray-500';
         message.innerHTML = `
-            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <p class="mt-2">No hay materias habilitadas en este momento.</p>
-            <p class="text-sm">Aprobá las materias del CBC para desbloquear más opciones.</p>
+            <p>No hay materias habilitadas en este momento.</p>
+            <p class="mt-1 text-xs">Aprobá las materias del CBC para desbloquear más opciones.</p>
         `;
-        container.appendChild(message);
+        enabledContainer.appendChild(message);
+        container.appendChild(enabledContainer);
+        return;
     }
+
+    // Mostrar las materias habilitadas
+    const grid = document.createElement('div');
+    grid.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3';
+    
+    enabledSubjects.forEach(subject => {
+        const card = document.createElement('div');
+        card.className = 'group bg-white p-3 rounded-lg border border-green-100 hover:border-green-300 transition-all duration-200 cursor-pointer hover:shadow-md';
+        card.innerHTML = `
+            <div class="flex items-start justify-between">
+                <div>
+                    <h3 class="font-medium text-gray-800 group-hover:text-green-700">${subject.name}</h3>
+                    <p class="text-xs text-gray-500">${subject.code}</p>
+                </div>
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-green-100 text-green-800">
+                    ${subject.theoryHours + (subject.practiceHours || 0) + (subject.labHours || 0)}h
+                </span>
+            </div>
+        `;
+        
+        // Hacer clic en la tarjeta marca la materia como aprobada
+        card.addEventListener('click', () => {
+            updateSubjectStatus(subject.id, 'approved');
+        });
+        
+        grid.appendChild(card);
+    });
+    
+    enabledContainer.appendChild(grid);
+    container.appendChild(enabledContainer);
 }
 
 // Inicialización

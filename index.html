@@ -7,22 +7,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="styles.css">
 </head>
-<body class="bg-gray-100 min-h-screen p-8">
-    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-md p-6">
-        <h1 class="text-3xl font-bold text-center text-gray-800 mb-8">Control de Materias</h1>
-        
-        <div class="mb-6">
-            <h2 class="text-xl font-semibold mb-4">Estado de las Materias</h2>
-            <div id="subjects-container" class="space-y-4">
-                <!-- Las materias se generarán dinámicamente con JavaScript -->
+<body class="bg-gray-50 text-gray-800">
+    <div class="container mx-auto px-4">
+        <header class="pt-6 pb-4 sticky top-0 bg-gray-50 z-10 border-b">
+            <h1 class="text-3xl font-bold text-center mb-2">Plan de Estudios - Física</h1>
+            <p class="text-center text-gray-600">Selecciona las materias aprobadas para ver las habilitadas</p>
+            
+            <div id="enabled-subjects" class="mt-6 mb-4">
+                <!-- Se llenará dinámicamente -->
             </div>
-        </div>
+        </header>
 
-        <div class="mt-8">
-            <h2 class="text-xl font-semibold mb-4">Materias Habilitadas</h2>
-            <div id="enabled-subjects" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <!-- Se mostrarán las materias habilitadas -->
-            </div>
+        <div id="subjects-container" class="py-6">
+            <!-- Se llenará dinámicamente -->
         </div>
     </div>
 
