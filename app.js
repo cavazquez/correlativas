@@ -178,6 +178,76 @@ function updateSubjectStatus(subjectId, statusType) {
     updateEnabledSubjects();
 }
 
+// Función para reiniciar todas las selecciones
+function resetAllSelections() {
+    if (confirm('¿Estás seguro de que deseas reiniciar todas las selecciones? Esto borrará todo tu progreso.')) {
+        // Reiniciar el estado de todas las materias
+        subjects.forEach(subject => {
+            subjectStatus[subject.id] = {
+                approved: false,
+                partial: false,
+                pending: true
+            };
+        });
+        
+        // Guardar el estado reiniciado
+        saveStatus();
+        
+        // Volver a renderizar
+        renderSubjects();
+        updateEnabledSubjects();
+    }
+}
+
+// Mostrar menú de opciones al hacer clic en una materia habilitada
+function showSubjectOptions(subject) {
+    // Crear menú de opciones
+    const menu = document.createElement('div');
+    menu.className = 'absolute z-20 mt-1 w-48 bg-white rounded-md shadow-lg py-1';
+    menu.setAttribute('role', 'menu');
+    menu.innerHTML = `
+        <div class="px-4 py-2 text-sm text-gray-700 border-b border-gray-100">
+            <p class="font-medium">${subject.name}</p>
+            <p class="text-xs text-gray-500">${subject.code}</p>
+        </div>
+        <button class="w-full text-left px-4 py-2 text-sm text-blue-600 hover:bg-blue-50 flex items-center" 
+                onclick="updateSubjectStatus('${subject.id}', 'partial'); event.stopPropagation();">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Marcar como Parciales
+        </button>
+        <button class="w-full text-left px-4 py-2 text-sm text-green-600 hover:bg-green-50 flex items-center" 
+                onclick="updateSubjectStatus('${subject.id}', 'approved'); event.stopPropagation();">
+            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Marcar como Final Aprobado
+        </button>
+    `;
+    
+    // Cerrar menú al hacer clic fuera
+    const closeMenu = (e) => {
+        if (!menu.contains(e.target)) {
+            menu.remove();
+            document.removeEventListener('click', closeMenu);
+        }
+    };
+    
+    // Agregar menú al documento
+    const card = document.querySelector(`[data-subject-id="${subject.id}"]`);
+    card.appendChild(menu);
+    
+    // Cerrar otros menús abiertos
+    document.querySelectorAll('.subject-options-menu').forEach(m => m.remove());
+    menu.classList.add('subject-options-menu');
+    
+    // Agregar evento para cerrar al hacer clic fuera
+    setTimeout(() => {
+        document.addEventListener('click', closeMenu);
+    }, 0);
+}
+
 // Renderizar la lista de materias
 function renderSubjects() {
     const container = document.getElementById('subjects-container');
@@ -322,7 +392,7 @@ function updateEnabledSubjects() {
     
     enabledSubjects.forEach(subject => {
         const card = document.createElement('div');
-        card.className = 'group bg-white p-3 rounded-lg border border-green-100 hover:border-green-300 transition-all duration-200 cursor-pointer hover:shadow-md';
+        card.className = 'group relative bg-white p-3 rounded-lg border border-green-100 hover:border-green-300 transition-all duration-200 cursor-pointer hover:shadow-md';
         card.innerHTML = `
             <div class="flex items-start justify-between">
                 <div>
@@ -335,10 +405,17 @@ function updateEnabledSubjects() {
             </div>
         `;
         
-        // Hacer clic en la tarjeta marca la materia como aprobada
-        card.addEventListener('click', () => {
-            updateSubjectStatus(subject.id, 'approved');
+        // Hacer clic en la tarjeta muestra el menú de opciones
+        card.addEventListener('click', (e) => {
+            // Evitar que el clic en los botones del menú cierren el menú inmediatamente
+            if (!e.target.closest('.subject-options-menu')) {
+                showSubjectOptions(subject);
+                e.stopPropagation();
+            }
         });
+        
+        // Agregar atributo de datos para identificar la tarjeta
+        card.setAttribute('data-subject-id', subject.id);
         
         grid.appendChild(card);
     });
@@ -369,6 +446,9 @@ document.addEventListener('DOMContentLoaded', () => {
     
     renderSubjects();
     updateEnabledSubjects();
+    
+    // Agregar evento al botón de reinicio
+    document.getElementById('reset-button').addEventListener('click', resetAllSelections);
 });
 
 // Hacer las funciones accesibles globalmente
