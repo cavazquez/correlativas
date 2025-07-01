@@ -203,15 +203,15 @@ function renderSubjects() {
             const isEnabled = isSubjectEnabled(subject);
             
             const subjectElement = document.createElement('div');
-            subjectElement.className = `subject-card p-4 border rounded-lg mb-4 ${!isEnabled ? 'opacity-70' : ''}`;
+            subjectElement.className = `subject-card p-4 border rounded-lg mb-4 transition-all duration-200 ${!isEnabled ? 'opacity-70 bg-gray-50' : status.approved ? 'bg-green-50 border-green-200' : status.partial ? 'bg-blue-50 border-blue-200' : 'bg-white'}`;
             
             let statusBadge = '';
             if (status.approved) {
-                statusBadge = '<span class="status-badge status-approved">Aprobado</span>';
+                statusBadge = '<span class="px-2 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800 border border-green-200">✅ Aprobado</span>';
             } else if (status.partial) {
-                statusBadge = '<span class="status-badge status-partial">Parciales</span>';
+                statusBadge = '<span class="px-2 py-1 text-xs font-medium rounded-full bg-blue-50 text-blue-800 border border-blue-100">📝 Parciales</span>';
             } else {
-                statusBadge = '<span class="status-badge status-pending">Pendiente</span>';
+                statusBadge = '<span class="px-2 py-1 text-xs font-medium rounded-full bg-yellow-50 text-yellow-800 border border-yellow-100">⏳ Pendiente</span>';
             }
 
             // Mostrar horas
@@ -230,10 +230,12 @@ function renderSubjects() {
                         </div>
                         
                         <div class="flex flex-wrap items-center gap-2 mt-1 text-sm">
-                            ${statusBadge}
-                            ${hoursInfo.length > 0 ? 
-                                `<span class="text-gray-600">${hoursInfo.join(' | ')}</span>` : ''
-                            }
+                            <div class="flex items-center gap-2">
+                                ${statusBadge}
+                                ${hoursInfo.length > 0 ? 
+                                    `<span class="text-sm text-gray-500 bg-white/50 px-2 py-0.5 rounded">${hoursInfo.join(' | ')}</span>` : ''
+                                }
+                            </div>
                         </div>
                         
                         ${subject.requires.length > 0 ? 
@@ -250,16 +252,18 @@ function renderSubjects() {
                         }
                     </div>
                     
-                    <div class="flex flex-col sm:flex-row gap-2">
-                        <button onclick="updateSubjectStatus(${subject.id}, 'partial')" 
-                                class="px-3 py-1 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors ${!isEnabled ? 'opacity-50 cursor-not-allowed' : ''}" 
-                                ${!isEnabled ? 'disabled' : ''}>
-                            Parciales
+                    <div class="flex space-x-2 mt-3">
+                        <button 
+                            onclick="updateSubjectStatus(${subject.id}, 'partial')" 
+                            class="px-3 py-1.5 text-xs rounded-full transition-all duration-200 ${status.partial ? 'bg-blue-600 text-white hover:bg-blue-700 shadow-sm' : 'bg-blue-50 text-blue-600 hover:bg-blue-100 border border-blue-200'}"
+                        >
+                            📝 Parciales
                         </button>
-                        <button onclick="updateSubjectStatus(${subject.id}, 'approved')" 
-                                class="px-3 py-1 text-sm bg-green-500 text-white rounded hover:bg-green-600 transition-colors ${!isEnabled ? 'opacity-50 cursor-not-allowed' : ''}" 
-                                ${!isEnabled ? 'disabled' : ''}>
-                            Final
+                        <button 
+                            onclick="updateSubjectStatus(${subject.id}, 'approved')" 
+                            class="px-3 py-1.5 text-xs rounded-full transition-all duration-200 ${status.approved ? 'bg-green-600 text-white hover:bg-green-700 shadow-sm' : 'bg-green-50 text-green-600 hover:bg-green-100 border border-green-200'}"
+                        >
+                            ✅ Final
                         </button>
                     </div>
                 </div>
