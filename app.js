@@ -92,17 +92,36 @@ const subjects = [
 ];
 
 // Estado de las materias (aprobadas, parciales, pendientes)
-const subjectStatus = {};
+let subjectStatus = {};
 
-// Inicializar el estado
+// Guardar el estado en localStorage
+function saveStatus() {
+    localStorage.setItem('subjectStatus', JSON.stringify(subjectStatus));
+}
+
+// Cargar el estado desde localStorage
+function loadStatus() {
+    const savedStatus = localStorage.getItem('subjectStatus');
+    if (savedStatus) {
+        return JSON.parse(savedStatus);
+    }
+    return null;
+}
+
+// Inicializar el estado de las materias
 function initializeStatus() {
+    // Intentar cargar el estado guardado
+    const savedStatus = loadStatus();
+    if (savedStatus) {
+        return savedStatus;
+    }
+    
+    // Si no hay estado guardado, inicializar uno nuevo
+    const status = {};
     subjects.forEach(subject => {
-        subjectStatus[subject.id] = {
-            approved: false,
-            partial: false,
-            pending: true  // Estado por defecto: ni parciales ni final aprobado
-        };
+        status[subject.id] = { approved: false, partial: false, pending: true };
     });
+    return status;
 }
 
 // Verificar si una materia está habilitada
@@ -132,20 +151,29 @@ function isSubjectEnabled(subject) {
 function updateSubjectStatus(subjectId, statusType) {
     const status = subjectStatus[subjectId];
     
-    // Si se hace clic en el estado actual, volver a pendiente
+    // Si se hace clic en el mismo estado, volver a pendiente
     if ((statusType === 'partial' && status.partial) || 
         (statusType === 'approved' && status.approved)) {
-        status.approved = false;
         status.partial = false;
+        status.approved = false;
         status.pending = true;
     } else {
-        // Si no, establecer el nuevo estado
-        status.approved = (statusType === 'approved');
-        status.partial = (statusType === 'partial');
-        status.pending = false;
+        // Actualizar según el tipo de estado
+        if (statusType === 'partial') {
+            status.partial = true;
+            status.approved = false;
+            status.pending = false;
+        } else if (statusType === 'approved') {
+            status.partial = false;
+            status.approved = true;
+            status.pending = false;
+        }
     }
     
-    // Actualizar la UI
+    // Guardar el estado actualizado
+    saveStatus();
+    
+    // Renderizar las materias actualizadas
     renderSubjects();
     updateEnabledSubjects();
 }
@@ -348,19 +376,29 @@ function updateEnabledSubjects() {
     }
 }
 
-// Inicializar la aplicación
-function init() {
-    initializeStatus();
+// Inicialización
+document.addEventListener('DOMContentLoaded', () => {
+    // Cargar el estado guardado si existe
+    const savedStatus = loadStatus();
+    if (savedStatus) {
+        // Asegurarse de que todas las materias tengan un estado
+        subjects.forEach(subject => {
+            if (!savedStatus[subject.id]) {
+                savedStatus[subject.id] = { approved: false, partial: false, pending: true };
+            }
+        });
+        subjectStatus = savedStatus;
+    } else {
+        // Inicializar un nuevo estado si no hay uno guardado
+        subjectStatus = {};
+        subjects.forEach(subject => {
+            subjectStatus[subject.id] = { approved: false, partial: false, pending: true };
+        });
+    }
+    
     renderSubjects();
     updateEnabledSubjects();
-}
-
-// Iniciar la aplicación cuando el DOM esté listo
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-} else {
-    init();
-}
+});
 
 // Hacer las funciones accesibles globalmente
 window.updateSubjectStatus = updateSubjectStatus;
